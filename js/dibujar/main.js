@@ -200,6 +200,7 @@ function construirColumna(ip, informacion, row, swt){
 
     col.addEventListener("click", function(){
         $("#ip").text(ip);
+        $("#ip").attr('href', "http://"+ip);
         tablaInformativa(ip, informacion);
         $('#infoModal').modal('toggle');
     });
