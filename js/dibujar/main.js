@@ -1,7 +1,16 @@
 var puntoRegExp = new RegExp(/\./g);
-
+var informacion = null;
 $(document).ready(function(){
     document.getElementById('file').addEventListener('change', readSingleFile, false);
+    document.getElementById('descargar').addEventListener('click', function(){
+        if(informacion != null){
+            var texto = JSON.stringify(informacion);
+
+            var blob = new Blob([texto], {
+                type: "text/plain;charset=utf-8;",
+            });
+            saveAs(blob, "mapa.txt");        }
+    });
 });
 
 function readSingleFile(evt) {
@@ -12,9 +21,25 @@ function readSingleFile(evt) {
     } else {
         var r = new FileReader();
         r.onload = function(e) {
-            var informacion =  xmlnmap2json(e.target.result);
+            if(informacion == null){
+                if(e.target.result.charAt(0) == "<"){
+                    informacion =  xmlnmap2json(e.target.result);
+                }else{
+                    informacion = JSON.parse(e.target.result);
+                }
+            }else{
+                if(e.target.result.charAt(0) == "<"){
+                    var extra = xmlnmap2json(e.target.result);
+                }
+                else{
+                    var extra = JSON.parse(e.target.result);
+                }
+                agregarInfo(extra);
+            }
             // console.log(informacion);
-            dibujar(informacion);
+            var grafo = construirGrafo(informacion);
+            dibujarGraph(grafo);
+            // dibujar(informacion);
         }
     }
 
@@ -46,12 +71,41 @@ function ordenarIps(ips, informacion){
         if(isSwitch(servicios)){
             bloques.push([ip]);
         }else{
-            bloques[bloques.length-1].push(ip);
+            if(bloques.length > 0){
+                bloques[bloques.length-1].push(ip);
+            }else{
+                bloques.push([ip]);
+            }
         }
     }
 
     return bloques;
 }
+
+function construirGrafo(informacion){
+    var grafo = {nodes: [{id: "internet", group: 0}], links: []};
+    var ips = new Array();
+    for (var key in informacion) {
+        ips.push(key);
+    }
+
+    var bloques = ordenarIps(ips, informacion);
+    for (var i = 0; i < bloques.length; i++) {
+        var bloque = bloques[i];
+        var switchIp = bloque[0];
+
+        grafo["nodes"].push({id: switchIp, group: i+1});
+        grafo["links"].push({source: switchIp, target: "internet", value: i+1});
+
+        for(var j = 1; j < bloque.length; j++){
+            var ip = bloque[j];
+            grafo["nodes"].push({id: ip, group: i+1});
+            grafo["links"].push({source: ip, target: switchIp, value: j});
+        }
+    }
+    
+    return grafo;
+};
 
 function isSwitch(servicios){
     if(servicios.length > 1){
@@ -229,3 +283,12 @@ function dibujar(informacion){
         construirFila(bloques[i], informacion, row);
     }
 }
+
+function agregarInfo(extra){
+    
+    for(key in extra){
+        if(informacion.hasOwnProperty(key)){
+            informacion[key] = extra[key];
+        }
+    }
+};

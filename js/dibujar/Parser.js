@@ -51,6 +51,13 @@ function xmlnmap2json(text){
 			if((cpetag = servicetag.getElementsByTagName("cpe")).length > 0 && ips[ip]["extra"].cpe === undefined){
 				ips[ip]["extra"].cpe = cpetag[0].textContent;
 			}
+
+			var elementos = puerto.getElementsByTagName('elem');
+			for(var k = 0; k < elementos.length; k++){
+				var elemento = elementos[k];
+				var key = elemento.getAttribute('key');
+				info[key] = elemento.textContent;
+			}
 			
 			servicios.push(info);
 		}
