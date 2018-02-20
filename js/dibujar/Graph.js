@@ -9,6 +9,12 @@ var simulation = d3.forceSimulation()
     .force("charge", d3.forceManyBody())
     .force("center", d3.forceCenter(width / 2, height / 2));
 
+function newSVG(){
+  svg = d3.select("svg");
+  width = +svg.attr("width");
+  height = +svg.attr("height");
+}
+
 function dibujarGraph(graph) {
 
   var link = svg.append("g")
@@ -23,7 +29,7 @@ function dibujarGraph(graph) {
     .selectAll("circle")
     .data(graph.nodes)
     .enter().append("circle")
-      .attr("r", 5)
+      .attr("r", 6)
       .attr("fill", function(d) { return color(d.group); })
       .call(d3.drag()
           .on("start", dragstarted)
@@ -58,7 +64,10 @@ function dragstarted(d) {
     $("#ip").text(d["id"]);
     $("#ip").attr('href', "http://"+d["id"]);
     tablaInformativa(d["id"], informacion);
-    $('#infoModal').modal('toggle');
+    // $('#infoModal').modal('toggle');
+    ipSeleccionado = d["id"];
+  }else{
+    ipSeleccionado = null;
   }
 
   if (!d3.event.active) simulation.alphaTarget(0.3).restart();

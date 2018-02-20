@@ -25,24 +25,66 @@
 <body>
 
 <div class="container">
-    <div class="row">
-        <div class="col-12 text-center">
-            <h1>Mapa de red</h1>
+    <div class="row border bg-info" style="margin: 10px; padding: 10px">
+        <div class="col-6 text-center">
+            <label class="control-label" for="file">Cargar redes</label>
+            <input class="form-control" id="file" type="file" name="file" />
         </div>
 
-        <div class="form-inline col-12">
+        <div class="col-6 text-center">
+            <button id="descargar" class="btn btn-secondary">Descargar</button>
+        </div>
+
+       <!--  <div class="form-inline col-12">
             <div class="form-group">
-                <label class="control-label col-6" for="file">Cargar redes</label>
-                <div class="col-12">
-                    <input id="file" type="file" name="file" />
-                </div>
             </div>
             <div class="form-group">
                 <div class="col-12">
-                    <button id="descargar" class="btn btn-secondary">Descargar</button>
                 </div>
             </div>
-        </div>         
+        </div>  -->        
+    </div>
+
+    <div class="row" style="margin: 10px;">
+        <div class="col-12">
+            <h2 class="text-center"><a target="_blank" href="#" id="ip">No has seleccionado un nodo</a></h2>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-4">
+            <h3 class="text-center">Servicios</h3>
+            <div id="servicios">
+                No has seleccionado un nodo
+            </div>
+        </div>
+
+        <div class="col-8">
+            <div class="col-12">
+                <h3 class="text-center">Mapa de red</h3>
+            </div>    
+            <div id="mapa" class="col-12 border">
+                <svg width="720" height="400"></svg>
+            </div>
+
+            <div class="col-12" style="padding-top: 10px;">
+                <h3 class="text-center">Información Extra</h3>
+                <div id="extra"></div>
+            </div>
+
+            <div class="col-12 border bg-info" style="padding: 20px;">
+                <div class="row">
+                    <div class="col-5">
+                        <input id="key" type="text" class="form-control" name="key" placeholder="Campo" />
+                    </div>
+                    <div class="col-5">
+                        <input id="propiedad" type="text" class="form-control" name="propiedad" placeholder="Propiedad" />
+                    </div>
+                    <div class="col-2">
+                        <button class="btn btn-secondary" id="agregar">Agregar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div id="red"></div>
@@ -57,12 +99,7 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <h3 class="text-center">Servicios</h3>
-                    <div id="servicios">
-                        
-                    </div>
-
-                    <div id="extra"></div>
+                    
                 </div>
                 <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -71,7 +108,6 @@
         </div>
     </div>
 
-    <svg width="960" height="600"></svg>
 </div>
 
 <script src="https://d3js.org/d3.v4.min.js"></script>

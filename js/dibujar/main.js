@@ -1,5 +1,6 @@
 var puntoRegExp = new RegExp(/\./g);
 var informacion = null;
+var ipSeleccionado = null;
 $(document).ready(function(){
     document.getElementById('file').addEventListener('change', readSingleFile, false);
     document.getElementById('descargar').addEventListener('click', function(){
@@ -9,9 +10,41 @@ $(document).ready(function(){
             var blob = new Blob([texto], {
                 type: "text/plain;charset=utf-8;",
             });
-            saveAs(blob, "mapa.txt");        }
+            saveAs(blob, "mapa.json");        }
     });
+
+    document.getElementById("agregar").addEventListener("click", function(){
+        agregarCampo();
+    });
+
 });
+
+function agregarCampo(){
+    if(ipSeleccionado != null){
+        var key = $("#key").val();
+        var propiedad = $("#propiedad").val();
+
+        if(key != "" && propiedad != ""){
+            informacion[ipSeleccionado]["extra"][key] = propiedad;
+
+            var extra_div = document.getElementById("extra");
+            var tabla = $(extra_div).find("table");
+            if(tabla.length == 0){
+                tablaInformativaExtra(ipSeleccionado, informacion);
+            }else{
+                agregarFilaTablaExtra(tabla[0], key, informacion[ipSeleccionado]["extra"]);
+            }
+
+            $("#key").val("");
+            $("#propiedad").val("");
+        }else{
+            console.log("Esta vacio");
+        }
+
+    }else{
+        console.log("No has seleccionado un nodo");
+    }
+};
 
 function readSingleFile(evt) {
     var f = evt.target.files[0]; 
@@ -35,6 +68,12 @@ function readSingleFile(evt) {
                     var extra = JSON.parse(e.target.result);
                 }
                 agregarInfo(extra);
+                d3.select("svg").remove();
+                d3.select("#mapa")
+                    .append('svg')
+                    .attr('width', 720)
+                    .attr('height', 400);
+                newSVG();
             }
             // console.log(informacion);
             var grafo = construirGrafo(informacion);
@@ -95,12 +134,12 @@ function construirGrafo(informacion){
         var switchIp = bloque[0];
 
         grafo["nodes"].push({id: switchIp, group: i+1});
-        grafo["links"].push({source: switchIp, target: "internet", value: i+1});
+        grafo["links"].push({source: switchIp, target: "internet", value: (i+1)*2});
 
         for(var j = 1; j < bloque.length; j++){
             var ip = bloque[j];
             grafo["nodes"].push({id: ip, group: i+1});
-            grafo["links"].push({source: ip, target: switchIp, value: j});
+            grafo["links"].push({source: ip, target: switchIp, value: j*2});
         }
     }
     
@@ -155,6 +194,32 @@ function addText(row, titulo, texto){
     row.appendChild(row_in);
 }
 
+function agregarFilaTablaExtra(tabla, key, informacion){
+    var tr = document.createElement("tr");
+
+    var td = document.createElement("td");
+    td.innerHTML = key;
+    tr.appendChild(td);
+
+    td = document.createElement("td");
+    td.innerHTML = informacion[key];
+    tr.appendChild(td);
+
+    tabla.appendChild(tr);
+}
+
+function tablaInformativaExtra(ip, informacion){
+    var extra_div = document.getElementById("extra");
+
+    var tabla = document.createElement("table");
+    tabla.setAttribute("class", "table table-bordered");
+    extra_div.appendChild(tabla);
+    for(key in informacion[ip]["extra"]){
+
+        agregarFilaTablaExtra(tabla, key, informacion[ip]["extra"]);
+    }
+};
+
 function tablaInformativa(ip, informacion){
     var div = document.getElementById("servicios");
     div.innerHTML = "";
@@ -202,27 +267,12 @@ function tablaInformativa(ip, informacion){
     }
 
     if(Object.keys(informacion[ip]["extra"]).length > 0){
-        var titulo = document.createElement("h3");
-        titulo.setAttribute("class", "text-center");
-        titulo.innerHTML = "Información Extra";
-        extra_div.appendChild(titulo);
+        // var titulo = document.createElement("h3");
+        // titulo.setAttribute("class", "text-center");
+        // titulo.innerHTML = "Información Extra";
+        // extra_div.appendChild(titulo);
 
-        var tabla = document.createElement("table");
-        tabla.setAttribute("class", "table table-bordered");
-        extra_div.appendChild(tabla);
-        for(key in informacion[ip]["extra"]){
-            var tr = document.createElement("tr");
-
-            var td = document.createElement("td");
-            td.innerHTML = key;
-            tr.appendChild(td);
-
-            td = document.createElement("td");
-            td.innerHTML = informacion[ip]["extra"][key];
-            tr.appendChild(td);
-
-            tabla.appendChild(tr);
-        }
+        tablaInformativaExtra(ip, informacion);
     }
 }
 
@@ -288,6 +338,8 @@ function agregarInfo(extra){
     
     for(key in extra){
         if(informacion.hasOwnProperty(key)){
+            informacion[key] = extra[key];
+        }else{
             informacion[key] = extra[key];
         }
     }
