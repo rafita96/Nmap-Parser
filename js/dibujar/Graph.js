@@ -29,15 +29,57 @@ function dibujarGraph(graph) {
     .selectAll("circle")
     .data(graph.nodes)
     .enter().append("circle")
-      .attr("r", 6)
+      .attr("r", 7)
       .attr("fill", function(d) { return color(d.group); })
       .call(d3.drag()
           .on("start", dragstarted)
           .on("drag", dragged)
           .on("end", dragended));
 
+  // node.append("text")
+  //     .attr("x", function(d){ return d.x; })
+  //     .attr("y", function(d){ return d.x; })
+  //     .text(function(d) { 
+  //         var puntoRegExp = new RegExp(/\./g);
+  //         puntoRegExp.exec(d.id);
+  //         puntoRegExp.exec(d.id);
+  //         puntoRegExp.exec(d.id);
+  //         var last = parseInt(d.id.substring(puntoRegExp.lastIndex));
+  //         return last; 
+  //       })
+  //     .attr("fill", "black")
+  //     .attr("font-family", "sans-serif")
+  //     .attr("font-size", "20px");
+
+  // var text = node.append("text")
+  //     .text(function(d) { 
+  //         var puntoRegExp = new RegExp(/\./g);
+  //         puntoRegExp.exec(d.id);
+  //         puntoRegExp.exec(d.id);
+  //         puntoRegExp.exec(d.id);
+  //         var last = parseInt(d.id.substring(puntoRegExp.lastIndex));
+  //         return last; 
+  //       })
+  //     .attr("fill", "black")
+  //     .attr("font-family", "sans-serif");
+
   node.append("title")
       .text(function(d) { return d.id; });
+
+  var texto = svg.selectAll("text")
+    .data(graph.nodes)
+    .enter()
+    .append("text")
+    .text(function(d){
+        var puntoRegExp = new RegExp(/\./g);
+        puntoRegExp.exec(d.id);
+        puntoRegExp.exec(d.id);
+        puntoRegExp.exec(d.id);
+        var last = parseInt(d.id.substring(puntoRegExp.lastIndex));
+        return last;
+    })
+    .attr("font-family", "sans-serif")
+    .attr("font-size", "10px");
 
   simulation
       .nodes(graph.nodes)
@@ -56,6 +98,10 @@ function dibujarGraph(graph) {
     node
         .attr("cx", function(d) { return d.x; })
         .attr("cy", function(d) { return d.y; });
+
+    texto
+        .attr("x", function(d){ return d.x + 3.5; })
+        .attr("y", function(d){ return d.y + 3.5; })
   }
 }
 
