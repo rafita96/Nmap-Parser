@@ -71,8 +71,9 @@ function readSingleFile(evt) {
                 d3.select("svg").remove();
                 d3.select("#mapa")
                     .append('svg')
-                    .attr('width', 720)
-                    .attr('height', 400);
+                    .attr('width', 1320)
+                    .attr('height', 860)
+                    .attr("viewBox","0 0 1640 860");
                 newSVG();
             }
             // console.log(informacion);
@@ -86,34 +87,47 @@ function readSingleFile(evt) {
 }
 
 function ordenarIps(ips, informacion){
-    ips.sort(function(ip1, ip2){
-        var puntoRegExp = new RegExp(/\./g);
-        puntoRegExp.exec(ip1);
-        puntoRegExp.exec(ip1);
-        puntoRegExp.exec(ip1);
-        var last1 = parseInt(ip1.substring(puntoRegExp.lastIndex));
 
+    var ordenado = {};
+    for(var i = 0; i < ips.length; i++){
+        var ip = ips[i];
         var puntoRegExp = new RegExp(/\./g);
-        puntoRegExp.exec(ip2);
-        puntoRegExp.exec(ip2);
-        puntoRegExp.exec(ip2);
-        var last2 = parseInt(ip2.substring(puntoRegExp.lastIndex));
+        puntoRegExp.exec(ip);
+        puntoRegExp.exec(ip);
+        puntoRegExp.exec(ip);
+        
+        var key = ip.substring(0,puntoRegExp.lastIndex-1);
+        if(key in ordenado){
+            ordenado[key].push(ip) 
+        }else{
+            ordenado[key] = [ip] 
+        }
+    }
 
-        return last1 - last2;
-    });
+    for(key in ordenado){
+        ordenado[key].sort(function(ip1, ip2){
+            var temp1 = ip1.split(".");
+            var temp2 = ip2.split(".");
+
+            return parseInt(temp1[3]) - parseInt(temp2[3]);
+        });
+    }
 
     var bloques = [];
 
-    for (var i = 0; i < ips.length; i++) {
-        var ip = ips[i];
-        var servicios = informacion[ip]["services"];
-        if(isSwitch(servicios)){
-            bloques.push([ip]);
-        }else{
-            if(bloques.length > 0){
-                bloques[bloques.length-1].push(ip);
-            }else{
+    for(key in ordenado){
+
+        for (var i = 0; i < ordenado[key].length; i++) {
+            var ip = ordenado[key][i];
+            var servicios = informacion[ip]["services"];
+            if(isSwitch(servicios)){
                 bloques.push([ip]);
+            }else{
+                if(bloques.length > 0){
+                    bloques[bloques.length-1].push(ip);
+                }else{
+                    bloques.push([ip]);
+                }
             }
         }
     }
